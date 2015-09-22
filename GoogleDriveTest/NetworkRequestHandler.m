@@ -825,6 +825,9 @@ timeOutInterval;
 {
     
     self.totalBytesToBeDownloaded=[response expectedContentLength];
+    
+    NSLog(@"FILE SIZE :%lld", self.totalBytesToBeDownloaded);
+    
     if (totalBytesToBeDownloaded<=0) {
         NSLog(@"\nNetworkResourceDownloader ERROR:Download size not known,download progress can't be calculated");
     }

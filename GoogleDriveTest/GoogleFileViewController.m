@@ -270,6 +270,9 @@ typedef void(^FileSavingCompletionHandler) (BOOL successStatus);
     labelForTitle.text=file.title;
     [cell.contentView addSubview:labelForTitle];
     
+    //NSLog(@"\n ******FILE******** : %@", file.description);
+    
+    
     
     if ([file.mimeType isEqualToString:@"application/vnd.google-apps.folder"])
     {
@@ -379,7 +382,6 @@ typedef void(^FileSavingCompletionHandler) (BOOL successStatus);
                                                       GTLDriveFile *file,
                                                       NSError *error) {
                                       
-                                      NSLog(@"\nfile name = %@", file.originalFilename);
                                       [driveFiles addObject:file];
                                       
                                       if (children.items.count==driveFiles.count)
@@ -449,9 +451,11 @@ typedef void(^FileSavingCompletionHandler) (BOOL successStatus);
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     GTLDriveFile *file=[driveFiles objectAtIndex:indexPath.row];
-    
-    
-    if ([file.mimeType isEqualToString:@"application/vnd.google-apps.folder"])
+    if (file.labels.trashed.boolValue == YES){
+        UIAlertView *alert=[[UIAlertView alloc]initWithTitle:@"ERROR" message:@"File has been deleted" delegate:self cancelButtonTitle:@"Ok" otherButtonTitles:nil, nil];
+        [alert show];
+    }
+    else if ([file.mimeType isEqualToString:@"application/vnd.google-apps.folder"])
     {
         level+=1;
         [parentIdArray addObject:file.identifier];
@@ -489,6 +493,7 @@ typedef void(^FileSavingCompletionHandler) (BOOL successStatus);
                 //download and show the pdf
                 if(link)
                 {
+                    
                     NSLog(@"link : %@", link);
                     
                     
@@ -502,10 +507,15 @@ typedef void(^FileSavingCompletionHandler) (BOOL successStatus);
                     NetworkRequestHandler * __weak newWeakFileDownLoader = fileDownLoader;
                     [newWeakFileDownLoader setCompletionHandler:^{
                         
+                        NSLog(@"data size : %lu",(unsigned long)newWeakFileDownLoader.responseData.length);
+                        
                         if (status == kDirectoryCreationSuccess || status == kDirectoryExists)
                         {
                             NSString *dirPath = [self directoryPathForSavingFile:appDelegate.fileDirectory];
                             NSString *filePath = [dirPath stringByAppendingPathComponent:file.title];
+                            
+                            
+                            NSLog(@"file path : %@", filePath);
                             
                             [self saveFileJSONData:newWeakFileDownLoader.responseData forFileName:filePath withCompletionHandler:^(BOOL successStatus) {
                                 // Adding skip attribute to avoid data sinking in iCloud
@@ -575,9 +585,6 @@ typedef void(^FileSavingCompletionHandler) (BOOL successStatus);
 
 -(void)saveFileJSONData:(NSData*)jsonData forFileName:(NSString*)fileName withCompletionHandler:(FileSavingCompletionHandler)completionHandler
 {
-    
-    NSLog(@"file name : %@", fileName);
-    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^ {
         
         NSError *error;
