@@ -476,7 +476,6 @@ typedef void(^FileSavingCompletionHandler) (BOOL successStatus);
         if ([file.fileExtension isEqualToString:@"pdf"]) {
             
             NSString *link;
-            
             if (file.webContentLink){
                 link=file.webContentLink;
             }
@@ -494,52 +493,33 @@ typedef void(^FileSavingCompletionHandler) (BOOL successStatus);
                 if(link)
                 {
                     
-                    NSLog(@"link : %@", link);
-                    
-                    
                     DirectoryCreationStatus  status= [self createFileDirectory:appDelegate.fileDirectory];
                     
-                    NetworkRequestHandler *fileDownLoader=[[NetworkRequestHandler alloc]initWithBaseURLString:link
-                                                                                              objectPathInURL:nil
-                                                                                         dataDictionaryToPost:nil];
-                    
-                    fileDownLoader.timeOutInterval=100000.0;
-                    NetworkRequestHandler * __weak newWeakFileDownLoader = fileDownLoader;
-                    [newWeakFileDownLoader setCompletionHandler:^{
-                        
-                        NSLog(@"data size : %lu",(unsigned long)newWeakFileDownLoader.responseData.length);
-                        
-                        if (status == kDirectoryCreationSuccess || status == kDirectoryExists)
-                        {
-                            NSString *dirPath = [self directoryPathForSavingFile:appDelegate.fileDirectory];
-                            NSString *filePath = [dirPath stringByAppendingPathComponent:file.title];
-                            
-                            
-                            NSLog(@"file path : %@", filePath);
-                            
-                            [self saveFileJSONData:newWeakFileDownLoader.responseData forFileName:filePath withCompletionHandler:^(BOOL successStatus) {
-                                // Adding skip attribute to avoid data sinking in iCloud
-                                [self addSkipBackupAttributeToItemAtURL:[NSURL fileURLWithPath:filePath]];
-                                
-                                [self showFileAtPath:filePath];
-                            }];
-                        }
-                        else
-                        {
-                            NSLog(@"something went wrong. Please try again");
+                    NSString *downloadUrl = file.downloadUrl;
+                    GTMHTTPFetcher *fetcher =  [self.driveService.fetcherService fetcherWithURLString:downloadUrl];
+                    //async call to download the file data
+                    [fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
+                        if (error == nil) {
+                            if ( data ){
+                                if (status == kDirectoryCreationSuccess || status == kDirectoryExists)
+                                {
+                                    NSString *dirPath = [self directoryPathForSavingFile:appDelegate.fileDirectory];
+                                    NSString *filePath = [dirPath stringByAppendingPathComponent:file.title];
+        
+                                    [self saveFileJSONData:data forFileName:filePath withCompletionHandler:^(BOOL successStatus) {
+                                        // Adding skip attribute to avoid data sinking in iCloud
+                                        [self addSkipBackupAttributeToItemAtURL:[NSURL fileURLWithPath:filePath]];
+                                        
+                                        [self showFileAtPath:filePath];
+                                    }];
+                                }
+                            }
+
+                        } else {
+                            NSLog(@"An error occurred: %@", error);
                         }
                     }];
-                    
-                    [newWeakFileDownLoader startDownload];
-                    
-                    [newWeakFileDownLoader setErrorHandler:^(NSError *fileJSONDownLoaderError)
-                     {
-                         NSLog(@"in error : %@", fileJSONDownLoaderError.localizedDescription);
-                     }];
-                    
-                    [newWeakFileDownLoader setProgressReporter:^{
-                        NSLog(@"file downloaded successfully with progress : %f", newWeakFileDownLoader.downloadProgressionFraction);
-                    }];
+
                 }
             }
         }
