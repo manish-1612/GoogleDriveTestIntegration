@@ -139,6 +139,7 @@ typedef void(^FileSavingCompletionHandler) (BOOL successStatus);
          else
          {
              driveFiles = [[NSMutableArray alloc] init];
+             
              [driveFiles addObjectsFromArray:files.items];
              viewForActivityIndicator.hidden=YES;
              [activityIndicator stopAnimating];
