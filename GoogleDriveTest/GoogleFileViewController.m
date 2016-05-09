@@ -382,25 +382,28 @@ typedef void(^FileSavingCompletionHandler) (BOOL successStatus);
                                   completionHandler:^(GTLServiceTicket *ticket,
                                                       GTLDriveFile *file,
                                                       NSError *error) {
-                                      
-                                      [driveFiles addObject:file];
-                                      
-                                      if (children.items.count==driveFiles.count)
-                                      {
-                                          [UIView beginAnimations:nil context:NULL];
-                                          [UIView setAnimationDuration:0.4];
-                                          tableViewForFiles.alpha=0.0;
-                                          [UIView commitAnimations];
+                                      if (error == nil){
+                                          [driveFiles addObject:file];
                                           
-                                          [tableViewForFiles reloadData];
-                                          
-                                          [UIView beginAnimations:nil context:NULL];
-                                          [UIView setAnimationDuration:0.4];
-                                          tableViewForFiles.alpha=1.0;
-                                          [UIView commitAnimations];
-                                          
-                                          viewForActivityIndicator.hidden=YES;
-                                          [activityIndicator stopAnimating];
+                                          if (children.items.count==driveFiles.count)
+                                          {
+                                              [UIView beginAnimations:nil context:NULL];
+                                              [UIView setAnimationDuration:0.4];
+                                              tableViewForFiles.alpha=0.0;
+                                              [UIView commitAnimations];
+                                              
+                                              [tableViewForFiles reloadData];
+                                              
+                                              [UIView beginAnimations:nil context:NULL];
+                                              [UIView setAnimationDuration:0.4];
+                                              tableViewForFiles.alpha=1.0;
+                                              [UIView commitAnimations];
+                                              
+                                              viewForActivityIndicator.hidden=YES;
+                                              [activityIndicator stopAnimating];
+                                          }
+                                      }else{
+                                          NSLog(@"error :", error.localizedDescription);
                                       }
                                   }];
                 }

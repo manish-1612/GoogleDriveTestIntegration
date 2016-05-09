@@ -208,7 +208,7 @@
 
 			UIButton *exportButton = [UIButton buttonWithType:UIButtonTypeCustom];
 			exportButton.frame = CGRectMake(rightButtonX, BUTTON_Y, iconButtonWidth, BUTTON_HEIGHT);
-			[exportButton setImage:[UIImage imageNamed:@"Reader-Export"] forState:UIControlStateNormal];
+			[exportButton setImage:[UIImage imageNamed:@"7"] forState:UIControlStateNormal];
 			[exportButton addTarget:self action:@selector(exportButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
 			[exportButton setBackgroundImage:buttonH forState:UIControlStateHighlighted];
 			[exportButton setBackgroundImage:buttonN forState:UIControlStateNormal];
