@@ -569,8 +569,13 @@ typedef void(^FileSavingCompletionHandler) (BOOL successStatus);
 
 -(void)saveFileJSONData:(NSData*)jsonData forFileName:(NSString*)fileName withCompletionHandler:(FileSavingCompletionHandler)completionHandler
 {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^ {
-        
+//    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^ {
+//        
+//    });
+    
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+       
         NSError *error;
         BOOL fileSavingStatus = [jsonData writeToFile:fileName options:NSDataWritingAtomic error:&error];
         
@@ -585,7 +590,6 @@ typedef void(^FileSavingCompletionHandler) (BOOL successStatus);
             
         }
     });
-    
     
     
 }
