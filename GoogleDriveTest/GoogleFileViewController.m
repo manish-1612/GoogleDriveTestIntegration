@@ -403,7 +403,7 @@ typedef void(^FileSavingCompletionHandler) (BOOL successStatus);
                                               [activityIndicator stopAnimating];
                                           }
                                       }else{
-                                          NSLog(@"error :", error.localizedDescription);
+                                          NSLog(@"error : %@", error.localizedDescription);
                                       }
                                   }];
                 }
